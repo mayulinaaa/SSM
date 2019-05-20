@@ -1,0 +1,8 @@
+# SSM
+用IDEA整合mybatis的一个ssm框架
+1.配置pom.xml文件，maven添加web项目必需的以及SpringMVC所必需的dependencies包。
+2.新增日志属性文件log4j.properties
+3.配置项目的web.xml文件，包括首页，异常跳转，会话超时，字符编码过滤器CharacterEncodingFilter，监听器ContextLoaderListener，
+前置控制器DispatcherServlet，静态文件单独处理等等。
+4.配置applicationContext.xml文件，在这里我们配置数据源以及与mybatis的整合配置
+5.配置mybatis.xml的文件，进行mybatis相关的配置
