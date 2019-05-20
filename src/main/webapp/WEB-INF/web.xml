@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+          http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+  <display-name>Archetype Created Web Application</display-name>
+  <!--welcome page-->
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  <!--当系统出现404错误，跳转到noPage.html页面-->
+  <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/noPage.html</location>
+  </error-page>
+  <!--当系统出现java.lang.NullPointerException，跳转到erroe.html-->
+  <error-page>
+    <exception-type>java.lang.NullPointerException</exception-type>
+    <location>/WEB-INF/error.html</location>
+  </error-page>
+  <!--会话超时配置，单位分钟-->
+  <session-config>
+    <session-timeout>360</session-timeout>
+  </session-config>
+
+  <!--spring框架提供了过滤器CharacterEncodingFilter,
+  这个过滤器就是针对每次浏览器请求进行过滤的，然后再为之添加了父类没有的功能即处理字符编码-->
+  <filter>
+    <filter-name>characterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>forceEncoding</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>characterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!--在项目中使用spring时，applicationContext.xml配置文件中是没有BeanFactory，
+  要想在业务层中的class文件中直接引用spring容器管理的bean须通过如下方式-->
+  <!--1.在web.xml中配置监听器ContextLoaderListener.其作用是在启动web容器的时候自动装配ApplicationContext的配置信息，
+  因为它实现了ServletContextListener这个接口，配置了这个监听器后，在启动容器的时候会默认执行它实现的方法-->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <!--2.部署applicationContext.xml文件的位置信息。如果在web.xml配置中不写任何参数配置信息，默认的路径是“/WEB-INF/applicationContext.xml”
+  如果是要自定义文件名可以在wen.xml中加入contextConfigLocation这个context参数，<param-value>里面指定相应的xml文件名，如果有多个xml文件，可以用，分隔，
+  也可以用通配符，applicationContext-*.xml即可将匹配的文件一同载入-->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:applicationContext.xml</param-value>
+  </context-param>
+
+  <!--如果DispatcherServlet拦截“/”,拦截了所有请求，那么同时对js,jsp等静态文件的访问也就被拦截了，静态文件被拦截后不能正常显示。
+  方案：激活Tomcat的defaultServlet来处理静态文件，写在DispatcherServlet前面，让defaultServlet先拦截请求，这样请求就不会进入spring了-->
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.css</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.gif</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.swf</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.jpg</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.png</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.js</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.html</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.xml</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.json</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>*.map</url-pattern>
+  </servlet-mapping>
+
+  <!--使用springMVC，配置DispatcherServlet是第一步，可以配置多个DispatcherServlet，DispatcherServlet是前端控制器，配置在web.xml中，用于拦截匹配的请求，把拦截下的请求依据某种规则分发到目标controller来处理-->
+  <!--配置前端控制器的文件位置和映射路径-->
+  <servlet>
+    <servlet-name>springMVC</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath:spring-mvc.xml</param-value>
+    </init-param>
+    <!--启动顺序，让这个servlet随着servlet容器一起启动-->
+    <load-on-startup>1</load-on-startup>
+    <async-supported>true</async-supported>
+  </servlet>
+  <!--<servlet-mapping>是映射信息，它也有一个<servlet-name>,里面的名字是对应的Servlet名，下面是映射路径，也就是访问servlet的名称-->
+  <servlet-mapping>
+    <servlet-name>springMVC</servlet-name>
+    <!--Servlet的拦截匹配规则可以自己定义，以当映射为@RequestMapping("/user/add")为例
+    1.拦截*.do、*.htm，例如 /user/add.do ，这是最传统的方式，不会导致静态文件被拦截
+    2.拦截 /，回拦截URL中带 /的请求，会导致静态文件被拦截后不能正常显示-->
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+
+</web-app>
